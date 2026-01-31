@@ -5,6 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
 
     [Header("Ground Check Settings")]
@@ -31,6 +32,11 @@ public class PlayerMovement : MonoBehaviour
         HandleSlide();
     }
 
+    private void FixedUpdate()
+    {
+        HandleMovement();
+    }
+
     private void CheckGrounded()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
@@ -54,6 +60,12 @@ public class PlayerMovement : MonoBehaviour
         {
             StopSlide();
         }
+    }
+
+    private void HandleMovement()
+    {
+        // Auto run to the right
+        rb.linearVelocity = new Vector2(moveSpeed, rb.linearVelocity.y);
     }
 
     private void StartSlide()
