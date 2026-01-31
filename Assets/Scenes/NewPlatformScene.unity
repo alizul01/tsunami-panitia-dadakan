@@ -362,7 +362,7 @@ PrefabInstance:
       objectReference: {fileID: 579664408}
     - target: {fileID: 4810193028308163441, guid: 5c832eb67252df4478d64383c8f0dc02, type: 3}
       propertyPath: availableChunks.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4810193028308163441, guid: 5c832eb67252df4478d64383c8f0dc02, type: 3}
       propertyPath: availableChunks.Array.data[0].name
@@ -370,7 +370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4810193028308163441, guid: 5c832eb67252df4478d64383c8f0dc02, type: 3}
       propertyPath: availableChunks.Array.data[1].name
-      value: Small
+      value: Default
       objectReference: {fileID: 0}
     - target: {fileID: 4810193028308163441, guid: 5c832eb67252df4478d64383c8f0dc02, type: 3}
       propertyPath: availableChunks.Array.data[2].name

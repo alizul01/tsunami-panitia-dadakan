@@ -11,10 +11,12 @@ public struct PlatformChunk
 
 public class PlatformManager : MonoBehaviour
 {
-    [Header("Chunk Settings")]
+    [Header("Settings")]
     [SerializeField] private List<PlatformChunk> availableChunks;
     [SerializeField] private int initialChunksOnScreen = 5;
     [SerializeField] private Transform cameraTransform;
+    [SerializeField] private float safeMargin = 15f;
+
     private class ActiveChunkData
     {
         public GameObject go;
@@ -22,12 +24,11 @@ public class PlatformManager : MonoBehaviour
     }
 
     private Queue<ActiveChunkData> activeChunks = new Queue<ActiveChunkData>();
-    private float nextSpawnX = 0f;
-    private float safeMargin = 15f;
+    private float currentEdgeX = 0f; // Menandai koordinat ujung paling kanan dari chunk terakhir
 
     void Start()
     {
-        nextSpawnX = transform.position.x;
+        currentEdgeX = transform.position.x;
 
         for (int i = 0; i < initialChunksOnScreen; i++)
         {
@@ -41,7 +42,8 @@ public class PlatformManager : MonoBehaviour
         {
             ActiveChunkData oldest = activeChunks.Peek();
 
-            if (oldest.go.transform.position.x + oldest.length < cameraTransform.position.x - safeMargin)
+            // Jarak pengecekan: Jika posisi tengah + setengah panjang < batas kamera
+            if (oldest.go.transform.position.x + (oldest.length / 2f) < cameraTransform.position.x - safeMargin)
             {
                 RecycleChunk();
             }
@@ -53,23 +55,28 @@ public class PlatformManager : MonoBehaviour
         int index = Random.Range(0, availableChunks.Count);
         PlatformChunk data = availableChunks[index];
 
-        GameObject go = Instantiate(data.prefab, new Vector3(nextSpawnX, 0, 0), Quaternion.identity);
+        // Rumus: Posisi Tengah = Ujung Terakhir + (Setengah Panjang Chunk Baru)
+        float spawnPosX = currentEdgeX + (data.length / 2f);
+
+        GameObject go = Instantiate(data.prefab, new Vector3(spawnPosX, 0, 0), Quaternion.identity);
         go.transform.SetParent(this.transform);
 
-        ActiveChunkData newChunk = new ActiveChunkData { go = go, length = data.length };
+        activeChunks.Enqueue(new ActiveChunkData { go = go, length = data.length });
 
-        activeChunks.Enqueue(newChunk);
-
-        nextSpawnX += data.length;
+        // Update ujung terakhir: Tambahkan seluruh panjang chunk baru
+        currentEdgeX += data.length;
     }
 
     void RecycleChunk()
     {
         ActiveChunkData chunkToMove = activeChunks.Dequeue();
 
-        chunkToMove.go.transform.position = new Vector3(nextSpawnX, 0, 0);
+        // Sama seperti spawn: Pindahkan titik tengah ke (Ujung + Setengah Panjangnya)
+        float newSpawnPosX = currentEdgeX + (chunkToMove.length / 2f);
+        chunkToMove.go.transform.position = new Vector3(newSpawnPosX, 0, 0);
 
-        nextSpawnX += chunkToMove.length;
+        // Update ujung terakhir
+        currentEdgeX += chunkToMove.length;
 
         activeChunks.Enqueue(chunkToMove);
     }
