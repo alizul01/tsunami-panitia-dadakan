@@ -937,7 +937,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 1.5}
   m_EdgeRadius: 0
 --- !u!50 &579664407
 Rigidbody2D:
@@ -976,7 +976,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -7.86, y: 2.23, z: 0}
-  m_LocalScale: {x: 0.5, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1635087382}
@@ -1216,6 +1216,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1187811427 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5771846321667070088, guid: 4a5bb49f64b6be446a76174cada0fe26, type: 3}
+  m_PrefabInstance: {fileID: 2018724120}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1187811431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1187811427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bb3507b3db60ec4887c510c27a97744, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnIntervalMin: 1
+  spawnIntervalMax: 3
+  spawnPoint: {fileID: 773746474}
 --- !u!1 &1208593292
 GameObject:
   m_ObjectHideFlags: 0
@@ -2013,8 +2033,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Sprite: {fileID: 4130640169021434097, guid: 1c7f0856f92f9784db8116d05015a3f9, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2421,17 +2441,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 563421320726867166, guid: 4a5bb49f64b6be446a76174cada0fe26, type: 3}
+    - target: {fileID: 3954044977788266851, guid: 4a5bb49f64b6be446a76174cada0fe26, type: 3}
       propertyPath: spawnPoint
       value: 
       objectReference: {fileID: 773746474}
     - target: {fileID: 5771846321667070088, guid: 4a5bb49f64b6be446a76174cada0fe26, type: 3}
       propertyPath: m_Name
       value: ObstacleManager
-      objectReference: {fileID: 0}
-    - target: {fileID: 5771846321667070088, guid: 4a5bb49f64b6be446a76174cada0fe26, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8210528494458277080, guid: 4a5bb49f64b6be446a76174cada0fe26, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2474,10 +2490,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 7560644319551939756, guid: 4a5bb49f64b6be446a76174cada0fe26, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5771846321667070088, guid: 4a5bb49f64b6be446a76174cada0fe26, type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 1187811431}
   m_SourcePrefab: {fileID: 100100000, guid: 4a5bb49f64b6be446a76174cada0fe26, type: 3}
 --- !u!1 &2084055421
 GameObject:
@@ -2524,7 +2542,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2994884028236210771}
-  - component: {fileID: 6894997531162591829}
+  - component: {fileID: 2994884028236210772}
   m_Layer: 0
   m_Name: PuluSpawner
   m_TagString: Untagged
@@ -2608,7 +2626,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6894997531162591829
+--- !u!114 &2994884028236210772
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2621,9 +2639,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnIntervalMin: 1
-  spawnIntervalMax: 2
+  spawnIntervalMax: 3
   spawnPoint: {fileID: 773746474}
-  PuluPrefabs:
+  puluPrefabs:
   - {fileID: 8588558571620484767, guid: e5c9682076e56be4694d38262142a0a5, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

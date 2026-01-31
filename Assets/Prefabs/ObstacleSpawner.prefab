@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8210528494458277080}
-  - component: {fileID: 563421320726867166}
   - component: {fileID: 4360113451798001937}
   m_Layer: 0
   m_Name: ObstacleSpawner
@@ -30,25 +29,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 8554615338733665380}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &563421320726867166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5771846321667070088}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14aaee1ca04c064448c2a19ca84342f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  spawnIntervalMin: 1
-  spawnIntervalMax: 2
-  spawnPoint: {fileID: 8554615338733665380}
 --- !u!114 &4360113451798001937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68,34 +51,3 @@ MonoBehaviour:
   - tag: Hight
     prefab: {fileID: 6759547056593510902, guid: 38ebacb1140f0f146b2da49ebbb7058f, type: 3}
     size: 5
---- !u!1 &7560644319551939756
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8554615338733665380}
-  m_Layer: 0
-  m_Name: SpawnPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8554615338733665380
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7560644319551939756}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.62, y: 2.21, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8210528494458277080}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

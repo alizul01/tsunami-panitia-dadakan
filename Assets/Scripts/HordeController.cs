@@ -39,7 +39,7 @@ public class HordeController : MonoBehaviour
         if (leader == null) leader = transform;
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         RecordSnapshot();
         UpdateHordePositions();
@@ -76,11 +76,12 @@ public class HordeController : MonoBehaviour
     {
         if (!collectedPulus.Contains(pulu))
         {
-            collectedPulus.Add(pulu);
-            pulu.JoinHorde();
-            
-            OnHordeCountChanged?.Invoke(collectedPulus.Count);
-            pulu.transform.DOJump(pulu.transform.position, joinJumpPower, 1, 0.5f);
+            pulu.transform.DOJump(pulu.transform.position, joinJumpPower, 1, 0.5f).onComplete += () =>
+            {
+                collectedPulus.Add(pulu);
+                pulu.JoinHorde();
+                OnHordeCountChanged?.Invoke(collectedPulus.Count);
+            };
         }
     }
 }
