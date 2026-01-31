@@ -550,6 +550,10 @@ MonoBehaviour:
     m_Bits: 8
   groundCheck: {fileID: 579664408}
   groundCheckRadius: 1
+  slideSpeed: 10
+  slideDuration: 0.5
+  slideCooldown: 1
+  slideKey: 306
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
