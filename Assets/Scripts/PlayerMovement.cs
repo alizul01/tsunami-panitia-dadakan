@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -12,28 +13,27 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.2f;
 
     [Header("Slide Settings")]
-    [SerializeField] private float slideSpeed = 10f;
-    [SerializeField] private float slideDuration = 0.5f;
-    [SerializeField] private float slideCooldown = 1f;
     [SerializeField] private KeyCode slideKey = KeyCode.LeftControl;
 
     private bool isGrounded;
     private bool isSliding;
-    private float slideTimer;
-    private float slideCooldownTimer;
+    private Vector3 originalScale;
+
+    private void Start()
+    {
+        originalScale = transform.localScale;
+    }
 
     private void Update()
     {
         CheckGrounded();
         HandleJump();
         HandleSlide();
-        UpdateSlideTimers();
     }
 
     private void CheckGrounded()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-        Debug.Log("Is Grounded: " + isGrounded);
     }
 
     private void HandleJump()
@@ -46,48 +46,29 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleSlide()
     {
-        if (Input.GetKeyDown(slideKey) && isGrounded && !isSliding && slideCooldownTimer <= 0f)
+        if (Input.GetKey(slideKey) && isGrounded && !isSliding)
         {
             StartSlide();
         }
-
-        if (isSliding)
+        else if ((!Input.GetKey(slideKey) || !isGrounded) && isSliding)
         {
-            float direction = transform.localScale.x > 0 ? 1f : -1f;
-            rb.linearVelocity = new Vector2(direction * slideSpeed, rb.linearVelocity.y);
+            StopSlide();
         }
     }
 
     private void StartSlide()
     {
         isSliding = true;
-        slideTimer = slideDuration;
+        transform.DOScaleY(originalScale.y * 0.5f, 0.1f);
     }
 
     private void StopSlide()
     {
         isSliding = false;
-        slideCooldownTimer = slideCooldown;
+        transform.DOScaleY(originalScale.y, 0.2f);
     }
 
-    private void UpdateSlideTimers()
-    {
-        // Update slide duration timer
-        if (isSliding)
-        {
-            slideTimer -= Time.deltaTime;
-            if (slideTimer <= 0f)
-            {
-                StopSlide();
-            }
-        }
 
-        // Update slide cooldown timer
-        if (slideCooldownTimer > 0f)
-        {
-            slideCooldownTimer -= Time.deltaTime;
-        }
-    }
 
     private void OnDrawGizmos()
     {
