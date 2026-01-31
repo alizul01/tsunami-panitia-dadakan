@@ -24,7 +24,7 @@ public class PlatformManager : MonoBehaviour
     }
 
     private Queue<ActiveChunkData> activeChunks = new Queue<ActiveChunkData>();
-    private float currentEdgeX = 0f; // Menandai koordinat ujung paling kanan dari chunk terakhir
+    private float currentEdgeX = 0f; 
 
     void Start()
     {
@@ -42,7 +42,6 @@ public class PlatformManager : MonoBehaviour
         {
             ActiveChunkData oldest = activeChunks.Peek();
 
-            // Jarak pengecekan: Jika posisi tengah + setengah panjang < batas kamera
             if (oldest.go.transform.position.x + (oldest.length / 2f) < cameraTransform.position.x - safeMargin)
             {
                 RecycleChunk();
@@ -55,15 +54,12 @@ public class PlatformManager : MonoBehaviour
         int index = Random.Range(0, availableChunks.Count);
         PlatformChunk data = availableChunks[index];
 
-        // Rumus: Posisi Tengah = Ujung Terakhir + (Setengah Panjang Chunk Baru)
         float spawnPosX = currentEdgeX + (data.length / 2f);
 
         GameObject go = Instantiate(data.prefab, new Vector3(spawnPosX, 0, 0), Quaternion.identity);
         go.transform.SetParent(this.transform);
 
         activeChunks.Enqueue(new ActiveChunkData { go = go, length = data.length });
-
-        // Update ujung terakhir: Tambahkan seluruh panjang chunk baru
         currentEdgeX += data.length;
     }
 
@@ -71,7 +67,6 @@ public class PlatformManager : MonoBehaviour
     {
         ActiveChunkData chunkToMove = activeChunks.Dequeue();
 
-        // Sama seperti spawn: Pindahkan titik tengah ke (Ujung + Setengah Panjangnya)
         float newSpawnPosX = currentEdgeX + (chunkToMove.length / 2f);
         chunkToMove.go.transform.position = new Vector3(newSpawnPosX, 0, 0);
 

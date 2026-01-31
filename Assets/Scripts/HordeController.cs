@@ -21,6 +21,10 @@ public class HordeController : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private List<Pulu> collectedPulus = new List<Pulu>();
 
+    [Header("Death Settings")]
+    [SerializeField] private Color blinkColor = Color.white;
+    [SerializeField] private float deathJumpPower = 3f;
+
     // HashSet untuk melacak Pulu yang sedang melompat agar posisinya tidak ditimpa
     private HashSet<Pulu> jumpingPulus = new HashSet<Pulu>();
 
@@ -108,5 +112,48 @@ public class HordeController : MonoBehaviour
             pulu.JoinHorde();
             OnHordeCountChanged?.Invoke(collectedPulus.Count);
         }
+    }
+
+    public void RemovePulu()
+    {
+        if (collectedPulus.Count <= 0)
+        {
+            Debug.Log("Game Over! Tidak ada Pulu tersisa.");
+            return;
+        }
+
+        int lastIndex = collectedPulus.Count - 1;
+        Pulu puluToDie = collectedPulus[lastIndex];
+        collectedPulus.RemoveAt(lastIndex);
+
+        OnHordeCountChanged?.Invoke(collectedPulus.Count);
+        HandlePuluDeath(puluToDie);
+    }
+
+    private void HandlePuluDeath(Pulu pulu)
+    {
+        pulu.enabled = false;
+
+        Collider2D col = pulu.GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        SpriteRenderer sr = pulu.SpriteRenderer;
+
+        if (sr != null)
+        {
+            sr.DOColor(blinkColor, 0.05f).SetLoops(2, LoopType.Yoyo);
+            sr.DOFade(0, 0.6f).SetEase(Ease.InQuad);
+        }
+
+        float randomExitX = UnityEngine.Random.Range(-3f, 3f);
+        float randomExitY = UnityEngine.Random.Range(-5f, -8f); 
+        Vector3 jumpTarget = pulu.transform.position + new Vector3(randomExitX, randomExitY, 0);
+
+        pulu.transform.DOJump(jumpTarget, deathJumpPower, 1, 0.6f).SetEase(Ease.Linear);
+
+        pulu.transform.DOScale(Vector3.zero, 0.6f).SetEase(Ease.InBack)
+            .OnComplete(() => {
+                Destroy(pulu.gameObject);
+            });
     }
 }

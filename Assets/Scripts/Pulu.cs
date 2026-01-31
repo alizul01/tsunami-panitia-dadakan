@@ -5,7 +5,9 @@ public class Pulu : MonoBehaviour
 {
     [SerializeField] private Collider2D col;
     [SerializeField] private Transform visual;
-    [SerializeField] private SpriteRenderer spriteRenderer; // Saya ganti namanya agar tidak bentrok dengan keyword 'renderer'
+    [SerializeField] private SpriteRenderer spriteRenderer; 
+
+    public SpriteRenderer SpriteRenderer => spriteRenderer;
 
     private bool isCollected = false;
 
