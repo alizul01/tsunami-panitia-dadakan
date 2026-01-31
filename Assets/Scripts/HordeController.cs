@@ -119,6 +119,7 @@ public class HordeController : MonoBehaviour
         if (collectedPulus.Count <= 0)
         {
             Debug.Log("Game Over! Tidak ada Pulu tersisa.");
+            UIManager.Instance.OnGameOver?.Invoke();//agak gak guna jadiin event aowkokawo
             return;
         }
 
