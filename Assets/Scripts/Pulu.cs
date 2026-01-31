@@ -53,10 +53,10 @@ public class Pulu : MonoBehaviour
             spriteRenderer.sprite = PuluVisualManager.Instance.GetPuluWithMaskRandom;
         }
 
-        // Efek animasi saat bergabung
-        if (visual != null)
-        {
-            visual.DOPunchScale(Vector3.one * 0.3f, 0.3f, 10, 1);
-        }
+        //// Efek animasi saat bergabung
+        //if (visual != null)
+        //{
+        //    visual.DOPunchScale(Vector3.one * 0.3f, 0.3f, 10, 1);
+        //}
     }
 }

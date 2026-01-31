@@ -12,7 +12,7 @@ public class ParallaxLayerManager : MonoBehaviour
 {
     [Header("Layer Settings")]
     [SerializeField] private List<ParallaxChunkData> chunkPrefabs;
-    [SerializeField] private float speedMultiplier = 0.5f; // 0 = diam total, 1 = ikut kamera
+    [SerializeField] private float speedMultiplier = 0.5f;
     [SerializeField] private int initialChunks = 3;
 
     [Header("References")]
@@ -25,19 +25,24 @@ public class ParallaxLayerManager : MonoBehaviour
     }
 
     private Queue<ActiveChunk> activeChunks = new Queue<ActiveChunk>();
-    private float currentEdgeX = 0f;
-    private float safeMargin = 20f;
+
+    // Gunakan posisi lokal untuk menjaga jarak antar chunk tetap presisi
+    private float nextLocalEdgeX = 0f;
+
+    [SerializeField] private float safeMargin = 20f;
     private Vector3 lastCameraPos;
 
     private void Awake()
     {
-        cameraTransform = Camera.main.transform;
+        if (cameraTransform == null) cameraTransform = Camera.main.transform;
     }
 
     void Start()
     {
         lastCameraPos = cameraTransform.position;
-        currentEdgeX = transform.position.x;
+
+        // Mulai dari 0 relatif terhadap posisi parent
+        nextLocalEdgeX = 0f;
 
         for (int i = 0; i < initialChunks; i++)
         {
@@ -45,20 +50,19 @@ public class ParallaxLayerManager : MonoBehaviour
         }
     }
 
-    void LateUpdate() // Gunakan LateUpdate untuk pergerakan kamera yang mulus
+    void LateUpdate()
     {
-        // 1. Logika Pergerakan Parallax
+        // 1. Pergerakan Parallax (Sumbu X)
         float deltaMovement = cameraTransform.position.x - lastCameraPos.x;
         transform.position += Vector3.right * (deltaMovement * speedMultiplier);
         lastCameraPos = cameraTransform.position;
 
-        // 2. Logika Recycling Chunk
+        // 2. Logika Recycling
         if (activeChunks.Count > 0)
         {
             ActiveChunk oldest = activeChunks.Peek();
 
-            // Cek apakah chunk sudah keluar dari jangkauan kamera (kiri)
-            // Karena parent-nya bergerak (parallax), kita cek posisi relatif terhadap kamera
+            // Cek posisi WORLD objek terhadap batas WORLD kamera
             if (oldest.go.transform.position.x + (oldest.length / 2f) < cameraTransform.position.x - safeMargin)
             {
                 RecycleChunk();
@@ -71,23 +75,32 @@ public class ParallaxLayerManager : MonoBehaviour
         int index = Random.Range(0, chunkPrefabs.Count);
         ParallaxChunkData data = chunkPrefabs[index];
 
-        float spawnPosX = currentEdgeX + (data.length / 2f);
-        GameObject go = Instantiate(data.prefab, new Vector3(spawnPosX, transform.position.y, 0), Quaternion.identity);
+        // Hitung posisi lokal (Center Pivot)
+        float spawnLocalX = nextLocalEdgeX + (data.length / 2f);
 
-        go.transform.SetParent(this.transform); // Menjadi anak dari layer ini agar ikut tergeser
+        GameObject go = Instantiate(data.prefab);
+        go.transform.SetParent(this.transform);
+
+        // Set localPosition agar relatif terhadap layer ini
+        go.transform.localPosition = new Vector3(spawnLocalX, 0, 0);
 
         activeChunks.Enqueue(new ActiveChunk { go = go, length = data.length });
-        currentEdgeX += data.length;
+
+        // Update batas lokal berikutnya
+        nextLocalEdgeX += data.length;
     }
 
     void RecycleChunk()
     {
         ActiveChunk chunkToMove = activeChunks.Dequeue();
 
-        float newSpawnPosX = currentEdgeX + (chunkToMove.length / 2f);
-        chunkToMove.go.transform.position = new Vector3(newSpawnPosX, transform.position.y, 0);
+        // Pindahkan posisi LOKAL ke ujung antrean lokal
+        float newLocalPosX = nextLocalEdgeX + (chunkToMove.length / 2f);
+        chunkToMove.go.transform.localPosition = new Vector3(newLocalPosX, 0, 0);
 
-        currentEdgeX += chunkToMove.length;
+        // Update batas lokal
+        nextLocalEdgeX += chunkToMove.length;
+
         activeChunks.Enqueue(chunkToMove);
     }
 }

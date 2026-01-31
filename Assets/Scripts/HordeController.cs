@@ -14,8 +14,15 @@ public class HordeController : MonoBehaviour
     [SerializeField] private int spacing = 10;
     [SerializeField] private float joinJumpPower = 2f;
 
+    [Header("Visual Settings")]
+    [SerializeField] private int minSortingOrder = 1;
+    [SerializeField] private int maxSortingOrder = 10;
+
     [Header("Debug")]
     [SerializeField] private List<Pulu> collectedPulus = new List<Pulu>();
+
+    // HashSet untuk melacak Pulu yang sedang melompat agar posisinya tidak ditimpa
+    private HashSet<Pulu> jumpingPulus = new HashSet<Pulu>();
 
     private struct Snapshot
     {
@@ -59,13 +66,16 @@ public class HordeController : MonoBehaviour
     {
         for (int i = 0; i < collectedPulus.Count; i++)
         {
+            Pulu pulu = collectedPulus[i];
+
+            // LOGIC FIX: Jangan timpa posisi jika Pulu sedang dalam proses DOJump
+            if (jumpingPulus.Contains(pulu)) continue;
+
             int frameIndex = history.Count - 1 - ((i + 1) * spacing);
 
             if (frameIndex >= 0 && frameIndex < history.Count)
             {
-                Pulu pulu = collectedPulus[i];
                 Snapshot snap = history[frameIndex];
-                
                 pulu.transform.position = snap.position;
                 pulu.transform.localScale = snap.scale;
             }
@@ -76,12 +86,27 @@ public class HordeController : MonoBehaviour
     {
         if (!collectedPulus.Contains(pulu))
         {
-            pulu.transform.DOJump(pulu.transform.position, joinJumpPower, 1, 0.5f).onComplete += () =>
+            collectedPulus.Add(pulu);
+
+            // 1. Atur Random Sorting Order agar tumpukan visual bervariasi
+            SpriteRenderer sr = pulu.GetComponentInChildren<SpriteRenderer>();
+            if (sr != null)
             {
-                collectedPulus.Add(pulu);
-                pulu.JoinHorde();
-                OnHordeCountChanged?.Invoke(collectedPulus.Count);
-            };
+                sr.sortingOrder = UnityEngine.Random.Range(minSortingOrder, maxSortingOrder);
+            }
+
+            // 2. Masukkan ke daftar jumping untuk mengunci posisi di Update
+            jumpingPulus.Add(pulu);
+
+            // 3. Eksekusi Jump
+            pulu.transform.DOJump(pulu.transform.position, joinJumpPower, 1, 0.5f)
+                .OnComplete(() => {
+                    // 4. Setelah selesai lompat, izinkan UpdateHordePositions mengambil alih
+                    jumpingPulus.Remove(pulu);
+                });
+
+            pulu.JoinHorde();
+            OnHordeCountChanged?.Invoke(collectedPulus.Count);
         }
     }
 }
