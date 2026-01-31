@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 665969148495481409}
   - component: {fileID: 6302241156534456697}
   - component: {fileID: 1600254124813933920}
-  - component: {fileID: 2984593885812707726}
   m_Layer: 0
   m_Name: Obstacle_High
   m_TagString: Obstacle
@@ -99,7 +98,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 9855ca38283ff0d4186682bee5dc815f, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -135,16 +134,3 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &2984593885812707726
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6759547056593510902}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4292b2c9456562c4cba01377b8855407, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 5

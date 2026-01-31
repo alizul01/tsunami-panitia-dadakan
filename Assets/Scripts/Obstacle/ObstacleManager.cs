@@ -1,20 +1,18 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class ObstacleGenerator : MonoBehaviour
+
+public class PuluGenerator : MonoBehaviour
 {
     [SerializeField] private float spawnIntervalMin;
     [SerializeField] private float spawnIntervalMax;
-    [SerializeField] private Transform spawnPoint;    
+    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private List<GameObject> PuluPrefabs;
 
     private float timer;
-    private ObstaclePooler pooler;
     private float currentSpawnInterval = 0;
 
-    void Start()
-    {
-        pooler = ObstaclePooler.Instance;
-    }
 
     void Update()
     {
@@ -31,9 +29,8 @@ public class ObstacleGenerator : MonoBehaviour
     void GenerateRandomObstacle()
     {
         // Pilih tag secara acak dari list pool yang tersedia
-        int randomIndex = Random.Range(0, pooler.pools.Count);
-        string randomTag = pooler.pools[randomIndex].tag;
-
-        pooler.SpawnFromPool(randomTag, spawnPoint.position, Quaternion.identity);
+        int randomIndex = Random.Range(0, PuluPrefabs.Count);
+        GameObject prefabToSpawn = PuluPrefabs[randomIndex];
+        Instantiate(prefabToSpawn, spawnPoint.position, Quaternion.identity);
     }
 }
