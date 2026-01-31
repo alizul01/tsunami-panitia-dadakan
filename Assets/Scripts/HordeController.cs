@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
@@ -5,6 +6,7 @@ using DG.Tweening;
 public class HordeController : MonoBehaviour
 {
     public static HordeController Instance { get; private set; }
+    public event Action<int> OnHordeCountChanged;
 
     [Header("Settings")]
     [SerializeField] private Transform leader;
@@ -46,8 +48,6 @@ public class HordeController : MonoBehaviour
     private void RecordSnapshot()
     {
         history.Add(new Snapshot(leader.position, leader.localScale));
-
-        // Trim history: only keep as many frames as needed for the last Pulu
         int maxFramesNeeded = (collectedPulus.Count + 1) * spacing;
         if (history.Count > maxFramesNeeded)
         {
@@ -79,6 +79,7 @@ public class HordeController : MonoBehaviour
             collectedPulus.Add(pulu);
             pulu.JoinHorde();
             
+            OnHordeCountChanged?.Invoke(collectedPulus.Count);
             pulu.transform.DOJump(pulu.transform.position, joinJumpPower, 1, 0.5f);
         }
     }
