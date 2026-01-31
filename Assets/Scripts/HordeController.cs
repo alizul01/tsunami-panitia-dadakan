@@ -8,7 +8,8 @@ public class HordeController : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private Transform leader;
-    [SerializeField] private int spacing = 10; // Frames delay valid for fixed update
+    public Transform Leader => leader;
+    [SerializeField] private int spacing = 10;
     [SerializeField] private float joinJumpPower = 2f;
 
     [Header("Debug")]
@@ -33,7 +34,6 @@ public class HordeController : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // Auto assign leader if on the same object
         if (leader == null) leader = transform;
     }
 
@@ -66,7 +66,6 @@ public class HordeController : MonoBehaviour
                 Pulu pulu = collectedPulus[i];
                 Snapshot snap = history[frameIndex];
                 
-                // Directly set position and scale for tight following
                 pulu.transform.position = snap.position;
                 pulu.transform.localScale = snap.scale;
             }
@@ -80,7 +79,6 @@ public class HordeController : MonoBehaviour
             collectedPulus.Add(pulu);
             pulu.JoinHorde();
             
-            // Visual feedback
             pulu.transform.DOJump(pulu.transform.position, joinJumpPower, 1, 0.5f);
         }
     }

@@ -64,7 +64,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        // Auto run to the right
         rb.linearVelocity = new Vector2(moveSpeed, rb.linearVelocity.y);
     }
 
@@ -79,8 +78,6 @@ public class PlayerMovement : MonoBehaviour
         isSliding = false;
         transform.DOScaleY(originalScale.y, 0.2f);
     }
-
-
 
     private void OnDrawGizmos()
     {

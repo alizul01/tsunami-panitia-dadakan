@@ -5,9 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Obstacle
-  - Collectible
   - DeathZone
   - Ground
+  - Pulu
   layers:
   - Default
   - TransparentFX
