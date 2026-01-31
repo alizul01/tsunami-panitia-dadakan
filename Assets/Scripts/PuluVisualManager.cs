@@ -1,16 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class PuluVisualManager : MonoBehaviour
+public class PuluVisualManager : SingletonMonoBehaviour<PuluVisualManager>
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public List<Sprite> puluDefault;
+    public List<Sprite> puluWithMask;
+    public Sprite GetPuluDefaultRandom => puluDefault[Random.Range(0, puluDefault.Count)];
+    public Sprite GetPuluWithMaskRandom => puluWithMask[Random.Range(0, puluWithMask.Count)];
 }

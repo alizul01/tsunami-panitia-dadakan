@@ -1,16 +1,19 @@
 using UnityEngine;
 
-public class SingletonMonobehavior : MonoBehaviour
+public class SingletonMonoBehaviour<T> : MonoBehaviour where T : SingletonMonoBehaviour<T>
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public static T Instance { get; protected set; }
 
-    // Update is called once per frame
-    void Update()
+    protected virtual void Awake()
     {
-        
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            Debug.LogWarning("An instance of this singleton already exists.");
+        }
+        else
+        {
+            Instance = (T)this;
+        }
     }
 }
