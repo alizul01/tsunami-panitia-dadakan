@@ -72,24 +72,25 @@ public class HordeController : MonoBehaviour
             return;
         }
 
-        // 2. Distance check: Hanya rekam jika leader sudah bergerak cukup jauh dari titik terakhir
-        // Ini membuat spacing tidak terpengaruh oleh FPS atau kecepatan lari
-        float dist = Vector3.Distance(leader.position, history[history.Count - 1].position);
-        if (dist >= recordDistanceThreshold)
+        // 2. Distance check: Hanya rekam jika leader sudah bergerak cukup jauh dari titik terakhir (X AXIS ONLY)
+        // Menggunakan X saja memastikan rekaman konsisten dengan laju lari
+        float dist = Mathf.Abs(leader.position.x - history[history.Count - 1].position.x);
+        
+        // PENTING: Kita tetap rekam jika Y berubah drastis (misal jatuh lurus ke bawah) agar tidak patah
+        float distY = Mathf.Abs(leader.position.y - history[history.Count - 1].position.y);
+
+        if (dist >= recordDistanceThreshold || distY >= recordDistanceThreshold)
         {
             history.Add(new Snapshot(leader.position, leader.localScale));
             
-            // 3. Pruning: Hapus history lama yang sudah tidak dipakai
-            // Kita hitung total jarak yang dibutuhkan horde
+            // 3. Pruning
             float requiredHistoryLength = (collectedPulus.Count + 10) * followSpacing; 
+            int maxPoints = Mathf.CeilToInt(requiredHistoryLength / recordDistanceThreshold); // Estimasi kasar
             
-            // Estimasi jumlah point yang dibutuhkan (safety margin x2)
-            int maxPoints = Mathf.CeilToInt(requiredHistoryLength / recordDistanceThreshold);
-            
-            if (history.Count > maxPoints)
+            // Safety cleaning yang lebih agresif agar memory tidak bocor
+            if (history.Count > maxPoints + 50) 
             {
-                // Remove yang paling tua (index 0)
-                history.RemoveAt(0);
+                history.RemoveRange(0, history.Count - maxPoints);
             }
         }
     }
@@ -103,6 +104,15 @@ public class HordeController : MonoBehaviour
         for (int i = 0; i < collectedPulus.Count; i++)
         {
             Pulu pulu = collectedPulus[i];
+
+            // Cleanup: Jika Pulu mati/destroyed di luar flow normal, hapus dari list agar tidak error
+            if (pulu == null)
+            {
+                collectedPulus.RemoveAt(i);
+                i--; // Mundurkan index karena list bergeser
+                OnHordeCountChanged?.Invoke(collectedPulus.Count);
+                continue;
+            }
 
             // Jangan update posisi jika sedang animasi jump (join/death)
             if (jumpingPulus.Contains(pulu)) continue;
@@ -143,8 +153,14 @@ public class HordeController : MonoBehaviour
                  pointScale = history[i].scale;
             }
 
-            // Hitung jarak segmen ini
-            float segmentDist = Vector3.Distance(prevPos, pointPos);
+            // Hitung jarak segmen ini (X-AXIS PRIORITY)
+            // Menggunakan jarak Euclidean (Vector3.Distance) membuat horde melambat saat melompat (karena jalur diagonal lebih panjang).
+            // Menggunakan delta X membuat mereka tetap sinkron secara horizontal.
+            float segmentDist = Mathf.Abs(prevPos.x - pointPos.x); // Ganti ke X distance
+            
+            // Fallback: Jika geraknya vertikal murni (panjat tembok/jatuh), segmentDist X mendekati 0.
+            // Kita tambahkan sedikit Y influence minimal agar tidak stuck div by zero atau diam.
+            if (segmentDist < 0.001f) segmentDist += Mathf.Abs(prevPos.y - pointPos.y);
 
             // Apakah target ada di dalam segmen ini?
             if (currentDist + segmentDist >= targetDist)

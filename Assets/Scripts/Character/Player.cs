@@ -8,6 +8,9 @@ public class Player : MonoBehaviour
 
     [Header("Jump Settings")]
     public float jumpForce = 10f;
+    [SerializeField] private AudioClip[] jumpSfx;
+    [SerializeField] private float minPitch = 0.9f;
+    [SerializeField] private float maxPitch = 1.1f;
 
     [Header("Ground Check Settings")]
     [SerializeField] private LayerMask groundLayer;
@@ -16,10 +19,12 @@ public class Player : MonoBehaviour
 
     private bool _isGrounded = false;
     private Rigidbody2D _rb;
+    private AudioSource _audioSource;
 
     void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -40,6 +45,12 @@ public class Player : MonoBehaviour
         if (Input.GetButtonDown("Jump") && _isGrounded)
         {
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
+            if (_audioSource != null && jumpSfx != null && jumpSfx.Length > 0)
+            {
+                _audioSource.pitch = Random.Range(minPitch, maxPitch);
+                AudioClip clip = jumpSfx[Random.Range(0, jumpSfx.Length)];
+                _audioSource.PlayOneShot(clip);
+            }
         }
     }
 
