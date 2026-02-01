@@ -8,6 +8,7 @@ TagManager:
   - DeathZone
   - Ground
   - Pulu
+  - GroundZone
   layers:
   - Default
   - TransparentFX
@@ -42,6 +43,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2430497713
+    locked: 0
   - name: Ground
     uniqueID: 3714895517
     locked: 0

@@ -11,7 +11,13 @@ public class HordeController : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private Transform leader;
     public Transform Leader => leader;
-    [SerializeField] private int spacing = 10;
+    
+    [Tooltip("Jarak (dalam Unity Unit) antara setiap Pulu dalam barisan. Lebih kecil = lebih rapat.")]
+    [SerializeField] private float followSpacing = 0.8f; 
+    
+    [Tooltip("Sensitivitas rekaman path. Makin kecil makin akurat kurvanya.")]
+    [SerializeField] private float recordDistanceThreshold = 0.05f;
+
     [SerializeField] private float joinJumpPower = 2f;
 
     [Header("Visual Settings")]
@@ -52,37 +58,116 @@ public class HordeController : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (leader == null) return;
         RecordSnapshot();
         UpdateHordePositions();
     }
 
     private void RecordSnapshot()
     {
-        history.Add(new Snapshot(leader.position, leader.localScale));
-        int maxFramesNeeded = (collectedPulus.Count + 1) * spacing;
-        if (history.Count > maxFramesNeeded)
+        // 1. Initial add
+        if (history.Count == 0)
         {
-            history.RemoveAt(0);
+            history.Add(new Snapshot(leader.position, leader.localScale));
+            return;
+        }
+
+        // 2. Distance check: Hanya rekam jika leader sudah bergerak cukup jauh dari titik terakhir
+        // Ini membuat spacing tidak terpengaruh oleh FPS atau kecepatan lari
+        float dist = Vector3.Distance(leader.position, history[history.Count - 1].position);
+        if (dist >= recordDistanceThreshold)
+        {
+            history.Add(new Snapshot(leader.position, leader.localScale));
+            
+            // 3. Pruning: Hapus history lama yang sudah tidak dipakai
+            // Kita hitung total jarak yang dibutuhkan horde
+            float requiredHistoryLength = (collectedPulus.Count + 10) * followSpacing; 
+            
+            // Estimasi jumlah point yang dibutuhkan (safety margin x2)
+            int maxPoints = Mathf.CeilToInt(requiredHistoryLength / recordDistanceThreshold);
+            
+            if (history.Count > maxPoints)
+            {
+                // Remove yang paling tua (index 0)
+                history.RemoveAt(0);
+            }
         }
     }
 
     private void UpdateHordePositions()
     {
+        if (history.Count < 2) return;
+
+        // Path logic: Leader -> History[Last] -> History[Last-1] ... -> History[0]
+        
         for (int i = 0; i < collectedPulus.Count; i++)
         {
             Pulu pulu = collectedPulus[i];
 
-            // LOGIC FIX: Jangan timpa posisi jika Pulu sedang dalam proses DOJump
+            // Jangan update posisi jika sedang animasi jump (join/death)
             if (jumpingPulus.Contains(pulu)) continue;
 
-            int frameIndex = history.Count - 1 - ((i + 1) * spacing);
+            // Target jarak untuk pulu ke-i
+            float targetDist = (i + 1) * followSpacing;
+            
+            SetPuluPositionOnPath(pulu, targetDist);
+        }
+    }
 
-            if (frameIndex >= 0 && frameIndex < history.Count)
+    private void SetPuluPositionOnPath(Pulu pulu, float targetDist)
+    {
+        float currentDist = 0f;
+        
+        // Poin pertama adalah Leader sendiri
+        Vector3 prevPos = leader.position;
+        Vector3 prevScale = leader.localScale;
+
+        // Cek segmen dari Leader ke History terakhir
+        // Ingat history paling baru ada di index TERAKHIR (Count-1)
+        
+        // Kita iterasi mundur dari yang paling baru
+        for (int i = history.Count - 1; i >= -1; i--)
+        {
+            Vector3 pointPos;
+            Vector3 pointScale;
+
+            if (i == -1) // Handling edge case kalau history sudah habis tapi jarak belum ketemu (jarang)
             {
-                Snapshot snap = history[frameIndex];
-                pulu.transform.position = snap.position;
-                pulu.transform.localScale = snap.scale;
+                 // Fallback ke point terlama
+                 pointPos = history[0].position;
+                 pointScale = history[0].scale;
             }
+            else
+            {
+                 pointPos = history[i].position;
+                 pointScale = history[i].scale;
+            }
+
+            // Hitung jarak segmen ini
+            float segmentDist = Vector3.Distance(prevPos, pointPos);
+
+            // Apakah target ada di dalam segmen ini?
+            if (currentDist + segmentDist >= targetDist)
+            {
+                // Ketemu! Kita lerp di antara prevPos dan pointPos
+                float remaining = targetDist - currentDist;
+                float t = remaining / segmentDist;
+
+                pulu.transform.position = Vector3.Lerp(prevPos, pointPos, t);
+                pulu.transform.localScale = Vector3.Lerp(prevScale, pointScale, t);
+                
+                // Rotasi polish: Hadapkan pulu ke arah gerakan
+                // Vector3 dir = (prevPos - pointPos).normalized; // Arah lari
+                // if (dir.x != 0) pulu.transform.localScale = new Vector3(Mathf.Sign(dir.x) * Mathf.Abs(pulu.transform.localScale.x), pulu.transform.localScale.y, pulu.transform.localScale.z);
+                
+                return;
+            }
+
+            currentDist += segmentDist;
+            prevPos = pointPos;
+            prevScale = pointScale;
+            
+            if (i == -1) break; // Break loop
         }
     }
 
@@ -119,7 +204,14 @@ public class HordeController : MonoBehaviour
         if (collectedPulus.Count <= 0)
         {
             Debug.Log("Game Over! Tidak ada Pulu tersisa.");
-            UIManager.Instance.OnGameOver?.Invoke();//agak gak guna jadiin event aowkokawo
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.OnGameOver?.Invoke();
+            }
+            else
+            {
+                Debug.LogWarning("UIManager Instance is null! Cannot invoke OnGameOver.");
+            }
             return;
         }
 
